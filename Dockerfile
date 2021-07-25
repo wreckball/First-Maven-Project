@@ -1,4 +1,2 @@
-FROM openjdk:8
-EXPOSE 8080
-ADD target/DemoWebApp.war DemoWebApp.war
-ENTRYPOINT ["java", "-jar", "/DemoWebApp.war"]
+FROM tomcat:8.0.20-jre8
+COPY /target/DemoWebApp.war /usr/local/tomcat/webapps/DemoWebApp.war
