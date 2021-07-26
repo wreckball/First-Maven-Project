@@ -15,28 +15,17 @@ pipeline {
         
         stage('build docker image') {
             steps {
-                sh "docker build -t xueszrd/demowebapp:1.0 ."
-            }
-        }
-        
-        stage('Docker login and push') {
-            steps {
-                //withCredentials([string(credentialsId: '53a3c4be-82fc-48ff-8e2c-31e0bf2a8dc4', variable: 'dockerPassword')]) {
-                   // sh "docker login --username xueszrd --password ${dockerPassword}"   
-                //}
-                sh '''  docker login --username xueszrd --password Pi89KjyUV653Acv
-                        docker push xueszrd/demowebapp:1.0'''
-            }
-        }
-        
-        stage('deploy the app on to the server') {
-            steps {
-                sshagent(['dockerdeploye']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no xuesz@192.168.1.103 docker rm f demowebapp || true
-                        ssh -o StrictHostKeyChecking=no xuesz@192.168.1.103 docker run -d -p 8080:8080 --name demowebapp xueszrd/demowebapp:1.0
-                    """
-                }
+                sh """cat << EOF > Dockerfile
+                        FROM tomcat:8-jre11
+                        RUN rm -rf /usr/local/tomcat/webapps/* | true
+                        COPY target/DemoWebApp.war /usr/local/tomcat/webapps/DemoWebApp.war
+                        EXPOSE 8081
+                        CMD ["catalina.sh", "run"]
+                        EOF
+                        
+                        docker build -t xueszrd/newwebapp .
+                        docker login --username xueszrd --password Pi89KjyUV653Acv
+                        docker push xueszrd/newwebapp"""
             }
         }
     }
