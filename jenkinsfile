@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('git checkout') {
             steps {
-                checkout changelog: false, scm: [$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/wreckball/First-Maven-Project.git']]]
+                checkout changelog: false, scm: [$class: 'GitSCM', branches: [[name: '*/release1.0']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/wreckball/First-Maven-Project.git']]]
             }
         }
         
