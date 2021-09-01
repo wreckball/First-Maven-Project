@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage('git checkout') {
+            steps {
+                checkout changelog: false, scm: [$class: 'GitSCM', branches: [[name: '*/release1.0']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/wreckball/First-Maven-Project.git']]]
+            }
+        }
+        
+        stage('build') {
+            steps{
+                sh "mvn clean package"
+            }
+        }
+        
+        stage('build docker image') {
+            steps {
+                sh """cat << EOF > Dockerfile
+                        FROM tomcat:8-jre11
+                        RUN rm -rf /usr/local/tomcat/webapps/* | true
+                        COPY target/DemoWebApp.war /usr/local/tomcat/webapps/DemoWebApp.war
+                        EXPOSE 8081
+                        CMD ["catalina.sh", "run"]
+                        EOF
+                        
+                        docker build -t xueszrd/newwebapp .
+                        docker login --username xueszrd --password Pi89KjyUV653Acv
+                        docker push xueszrd/newwebapp"""
+            }
+        }
+    }
+}
